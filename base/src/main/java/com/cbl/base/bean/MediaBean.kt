@@ -8,4 +8,13 @@ package com.cbl.base.bean
  *     desc   :
  * </pre>
  */
-data class MediaBean(val path:String)
+data class MediaBean(
+    val path: String,
+    val mimeType: String,
+    val date_modified: Long,
+    val date_added: Long,
+    val duration: Long,
+    val _size:Long,
+    val bucket_display_name: String,
+    val relative_path:String,
+    )

@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.view.WindowCompat
 import com.cbl.base.MediaUtil
 import com.cbl.composealbum.ui.theme.ComposeAlbumTheme
 import kotlinx.coroutines.flow.collectLatest
@@ -22,6 +23,7 @@ import timber.log.Timber
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             Greeting("Android")
         }
@@ -30,10 +32,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String) {
-    val data=MediaUtil.albumData.collectAsState().value
-    LazyColumn(modifier = Modifier.fillMaxSize()){
-        data.list.forEach { 
-            item { 
+    val data = MediaUtil.albumData.collectAsState().value
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        data.list.forEach {
+            item {
                 Text(text = "${it.name}  size:${it.list.size}")
             }
         }

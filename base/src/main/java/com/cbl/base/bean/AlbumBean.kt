@@ -8,4 +8,4 @@ package com.cbl.base.bean
  *     desc   :
  * </pre>
  */
-data class AlbumBean(val list: MutableList<MediaBean> = mutableListOf(), val name:String, val relativePath:String)
+data class AlbumBean(val list: MutableList<MediaBean> = mutableListOf(), val name:String, val relative_path:String)
