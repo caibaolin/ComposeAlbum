@@ -7,11 +7,11 @@ android {
     compileSdk 31
 
     defaultConfig {
-        applicationId "com.cbl.composealbum"
         minSdk 21
         targetSdk 28
-        versionCode 1
-        versionName "1.0"
+        versionCode 3130300
+        versionName "3.13.3.0"
+        applicationId 'com.eebbk.electronicalbum.activity'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -25,7 +25,21 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    signingConfigs {
+        debug {
+            keyAlias 'imoo'
+            keyPassword 'bbkeebbklinux123'
+            storeFile file('/opt/imoo.jks')
+            storePassword 'bbkeebbk'
+        }
 
+        release {
+            keyAlias 'imoo'
+            keyPassword 'bbkeebbklinux123'
+            storeFile file('/opt/imoo.jks')
+            storePassword 'bbkeebbk'
+        }
+    }
     kotlinOptions {
         jvmTarget = '1.8'
     }
