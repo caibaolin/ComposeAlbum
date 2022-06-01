@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
 fun Greeting(name: String) {
     val data = MediaUtil.albumData.collectAsState().value
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        data.list.forEach {
+        data.alllist.forEach {
             item {
                 Text(text = "${it.name}  size:${it.list.size}")
             }

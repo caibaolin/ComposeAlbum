@@ -6,6 +6,7 @@ import android.provider.MediaStore
 import androidx.room.Room
 import com.cbl.base.bean.AlbumBean
 import com.cbl.base.bean.AlbumData
+import com.cbl.base.bean.GreenManager
 import com.cbl.base.bean.MediaBean
 import com.cbl.base.dao.AppDatabase
 import kotlinx.coroutines.async
@@ -42,36 +43,49 @@ object MediaUtil {
         val id = cursor.getLong(8)
         val orientation = cursor.getInt(9)
         return MediaBean(
-            _id=id,
-            path=path,
-            mimeType=mimeType,
-      /*      date_modified=date_modified,
-            date_added=date_added,*/
-            duration=duration,
-            _size=_size,
+            _id = id,
+            path = path,
+            mimeType = mimeType,
+            /*      date_modified=date_modified,
+                  date_added=date_added,*/
+            duration = duration,
+            _size = _size,
 /*            bucket_display_name=bucket_display_name,
             relative_path=relative_path,*/
             orientation = orientation
         ).apply {
-            this.date_modified=date_modified
-            this.date_added=date_added
-            this.bucket_display_name=bucket_display_name
-            this.relative_path=relative_path
+            this.date_modified = date_modified
+            this.date_added = date_added
+            this.bucket_display_name = bucket_display_name
+            this.relative_path = relative_path
         }
     }
 
-    suspend fun getData()=coroutineScope {
-        val time=System.currentTimeMillis();
+    suspend fun getData() = coroutineScope {
+        val time = System.currentTimeMillis();
         val image_AlbumBeanTask = async { getData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI) }
         val video_AlbumBeanTask = async { getData(MediaStore.Video.Media.EXTERNAL_CONTENT_URI) }
         val dbTask = async { getDataByDb() }
-        val image_AlbumBean=image_AlbumBeanTask.await()
-        val video_AlbumBean=video_AlbumBeanTask.await()
-        val dblist=dbTask.await()
-        val dbAlbumBean=AlbumBean(name = "RECYCLER_IMG_DB", list = dblist.toMutableList(), relative_path = "RECYCLER_IMG_DB")
+        val greenListTask = async { GreenManager.getIGreenManager().interceptedFilePathList }
+        /*回收站数据*/
+        val dblist = dbTask.await()
+        /*鉴黄数据*/
+        val greenList = greenListTask.await()
+        val greenListTemp = mutableListOf<String>()
+        greenListTemp.addAll(greenList)
+        Timber.i("getData greenList-->${greenList}")
+        val dbAlbumBean = AlbumBean(
+            name = "RECYCLER_IMG_DB",
+            list = dblist.toMutableList(),
+            relative_path = "RECYCLER_IMG_DB"
+        )
         Timber.i("getData dblist.size-->${dblist.size}")
         Timber.i("getData dblist-->${dblist}")
         val allAlbumBeanMap = mutableMapOf<String, AlbumBean>()
+        /*所有图片*/
+        val image_AlbumBean = image_AlbumBeanTask.await()
+        /*所有视频*/
+        val video_AlbumBean = video_AlbumBeanTask.await()
         allAlbumBeanMap.putAll(image_AlbumBean)
         video_AlbumBean.forEach {
             if (allAlbumBeanMap.containsKey(it.key)) {
@@ -83,16 +97,33 @@ object MediaUtil {
         val mAlbumBeanList = mutableListOf<AlbumBean>()
         mAlbumBeanList.addAll(allAlbumBeanMap.values)
         mAlbumBeanList.add(dbAlbumBean)
-//        Timber.i("getData  mAlbumBeanList-->$mAlbumBeanList")
-        albumData.emit(AlbumData(mAlbumBeanList))
-        Timber.i("getData over-->${System.currentTimeMillis()-time}")
+   /*     mAlbumBeanList.forEach { albumbean ->
+            albumbean.list.forEach {
+                if (greenListTemp.contains(it.path)) {
+                    greenListTemp.remove(it.path)
+                    it.mEncryptFile = true
+                }
+            }
+        }*/
+        Timber.i("getData  mAlbumBeanList-->$mAlbumBeanList")
+        albumData.emit(
+            AlbumData(
+                alllist = mAlbumBeanList,
+                imageAlbums = image_AlbumBean,
+                videoAlbums = video_AlbumBean,
+                dbAlbumBean = dbAlbumBean,
+                greenList = greenList
+            )
+        )
+        Timber.i("getData over-->${System.currentTimeMillis() - time}")
     }
-    fun getDataByDb():List<MediaBean>{
+
+    fun getDataByDb(): List<MediaBean> {
         val db = Room.databaseBuilder(
             BaseApp.CONTEXT,
             AppDatabase::class.java, "internal_recycler.db"
         ).build()
-        val time=System.currentTimeMillis()- TimeUnit.DAYS.toMillis(30);
+        val time = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(30);
         Timber.i("getDataByDb time -->$time")
         return db.mediaBeanDao().getAll(time)
     }

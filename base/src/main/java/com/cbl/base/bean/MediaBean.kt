@@ -75,5 +75,10 @@ data class MediaBean(
     var bucket_display_name: String=""
     @Ignore
     var relative_path:String=""
+    @Ignore
+    var mEncryptFile:Boolean=false
+    override fun toString(): String {
+        return "MediaBean(_id=$_id, path=$path, old_Path=$old_Path, name=$name, old_name=$old_name, mimeType=$mimeType, duration=$duration, _size=$_size, old_add_time=$old_add_time, RECYCLE_TIME=$RECYCLE_TIME, TAKEN_TIME=$TAKEN_TIME, OLD_ID=$OLD_ID, IS_ENCRYPT_FILE=$IS_ENCRYPT_FILE, orientation=$orientation, FILE_TYPE=$FILE_TYPE, date_modified=$date_modified, date_added=$date_added, bucket_display_name='$bucket_display_name', relative_path='$relative_path', mEncryptFile=$mEncryptFile)"
+    }
 
 }

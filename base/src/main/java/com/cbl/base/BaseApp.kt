@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.provider.MediaStore
+import com.cbl.base.bean.GreenManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -31,6 +32,7 @@ open class BaseApp : Application() {
         CONTEXT = this
         Timber.plant(Timber.DebugTree())
         Timber.i("onCreate")
+        GreenManager.initGreenManager(this)
 
 
         val contentObserver = object : ContentObserver(mainHandler) {
