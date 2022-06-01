@@ -9,9 +9,11 @@ import com.cbl.base.bean.AlbumData
 import com.cbl.base.bean.GreenManager
 import com.cbl.base.bean.MediaBean
 import com.cbl.base.dao.AppDatabase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -97,15 +99,21 @@ object MediaUtil {
         val mAlbumBeanList = mutableListOf<AlbumBean>()
         mAlbumBeanList.addAll(allAlbumBeanMap.values)
         mAlbumBeanList.add(dbAlbumBean)
-   /*     mAlbumBeanList.forEach { albumbean ->
+        mAlbumBeanList.forEach { albumbean ->
             albumbean.list.forEach {
                 if (greenListTemp.contains(it.path)) {
                     greenListTemp.remove(it.path)
                     it.mEncryptFile = true
                 }
             }
-        }*/
-        Timber.i("getData  mAlbumBeanList-->$mAlbumBeanList")
+        }
+        /*
+        *
+        * 打印耗时
+        * */
+        launch(Dispatchers.Default){
+            Timber.i("getData  mAlbumBeanList-->$mAlbumBeanList")
+        }
         albumData.emit(
             AlbumData(
                 alllist = mAlbumBeanList,
