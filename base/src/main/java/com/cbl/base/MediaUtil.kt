@@ -1,8 +1,11 @@
 package com.cbl.base
 
 import android.database.Cursor
+import android.media.MediaScannerConnection
 import android.net.Uri
+import android.os.Environment
 import android.provider.MediaStore
+import android.text.TextUtils
 import androidx.room.Room
 import com.cbl.base.bean.AlbumBean
 import com.cbl.base.bean.AlbumData
@@ -15,6 +18,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 
@@ -58,17 +62,23 @@ object MediaUtil {
         ).apply {
             this.date_modified = date_modified
             this.date_added = date_added
-            this.bucket_display_name = bucket_display_name
-            this.relative_path = relative_path
+            bucket_display_name?.let {
+                this.bucket_display_name = bucket_display_name
+            }
+            relative_path?.let {
+                this.relative_path = relative_path
+            }
         }
     }
 
     suspend fun getData() = coroutineScope {
         val time = System.currentTimeMillis();
+        val deleteAlbumHideFileTask=async { deleteAlbumHideFile() }
         val image_AlbumBeanTask = async { getData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI) }
         val video_AlbumBeanTask = async { getData(MediaStore.Video.Media.EXTERNAL_CONTENT_URI) }
         val dbTask = async { getDataByDb() }
         val greenListTask = async { GreenManager.getIGreenManager().interceptedFilePathList }
+        deleteAlbumHideFileTask.await()
         /*回收站数据*/
         val dblist = dbTask.await()
         /*鉴黄数据*/
@@ -176,5 +186,56 @@ object MediaUtil {
         return albumMap
     }
 
+
+
+    /*
+    *
+    * 检测并删除nomedia文件
+    *
+    * */
+    private fun deleteAlbumHideFile() {
+        deleteAlbumHideFile(Environment.getExternalStorageDirectory().path + File.separator + "DCIM" + File.separator + "Camera")
+        deleteAlbumHideFile(Environment.getExternalStorageDirectory().path + File.separator + "DCIM" + File.separator + "Screenshots")
+    }
+    private fun deleteAlbumHideFile(path: String) {
+        try {
+            Timber.i(
+                "deleteAlbumHideFiles path-->$path"
+            )
+            if (TextUtils.isEmpty(path)) {
+                return
+            }
+            var tempFile: File? = File(path)
+            var hideFile: File? = null
+            var scanPath: String? = null
+            while (tempFile != null && tempFile.exists()) {
+                hideFile = File(tempFile, ".nomedia")
+                if (hideFile.exists()) {
+                    Timber.i(
+                        "deleteAlbumHideFiles hideFile exists-->" + hideFile.path
+                    )
+                    hideFile.delete()
+                    scanPath = tempFile.path
+                    Timber.i(
+                        "deleteAlbumHideFiles scanPath exists-->$scanPath"
+                    )
+                }
+                tempFile = tempFile.parentFile
+            }
+            if (scanPath != null) {
+                Timber.i(
+                    "deleteAlbumHideFiles scanPath end exists-->$scanPath"
+                )
+                MediaScannerConnection.scanFile(
+                    BaseApp.CONTEXT,
+                    arrayOf(scanPath),
+                    null,
+                    null
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
 }
