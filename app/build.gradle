@@ -9,8 +9,8 @@ android {
     defaultConfig {
         minSdk 21
         targetSdk 28
-        versionCode 3130300
-        versionName "3.13.3.0"
+        versionCode 3130400
+        versionName "3.13.4.0"
         applicationId 'com.eebbk.electronicalbum.activity'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
