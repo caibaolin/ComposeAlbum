@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(name: String) {
     val data = MediaUtil.albumData.collectAsState().value
+    MediaUtil.sortAlbumList(data.alllist)
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         data.alllist.forEach {
             item {

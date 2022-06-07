@@ -7,10 +7,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.text.TextUtils
 import androidx.room.Room
-import com.cbl.base.bean.AlbumBean
-import com.cbl.base.bean.AlbumData
-import com.cbl.base.bean.GreenManager
-import com.cbl.base.bean.MediaBean
+import com.cbl.base.bean.*
 import com.cbl.base.dao.AppDatabase
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -99,7 +96,7 @@ object MediaUtil {
         val dbAlbumBean = AlbumBean(
             displayName = "最近删除",
             list = dbList.toMutableList(),
-            relative_path = "RECYCLER_IMG_DB"
+            relative_path = relative_RECYCLER_IMG_DB
         )
         Timber.i("getData dblist.size-->${dbList.size}")
         Timber.i("getData dblist-->${dbList}")
@@ -227,6 +224,7 @@ object MediaUtil {
             }
             it.close()
         }
+        addCameraScreenshots(albumMap)
         return albumMap
     }
     /**
@@ -278,6 +276,8 @@ object MediaUtil {
             }
             it.close()
         }
+        addCameraScreenshots(albumMap)
+        addCameraScreenshots(albumMapNogif)
         return listOf(albumMap,albumMapNogif)
     }
 
@@ -411,5 +411,18 @@ object MediaUtil {
             }
         }
         return emptyAlbumsDataSB.toString()
+    }
+    fun addCameraScreenshots(map:MutableMap<String, AlbumBean>){
+        if(!map.containsKey(cameraAlbumBean.relative_path)){
+            map[cameraAlbumBean.relative_path] = cameraAlbumBean
+        }
+        if(!map.containsKey(screenshotsAlbumBean.relative_path)){
+            map[screenshotsAlbumBean.relative_path] = screenshotsAlbumBean
+        }
+    }
+    fun sortAlbumList(list:MutableList<AlbumBean>){
+        list.sortByDescending {
+            it.getSortKey()
+        }
     }
 }
