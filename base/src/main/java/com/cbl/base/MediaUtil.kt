@@ -86,7 +86,7 @@ object MediaUtil {
         val emptyAlbumsTask=async { getEmptyAlbums() }
         deleteAlbumHideFileTask.await()
         /*回收站数据*/
-        val dblist = dbTask.await()
+        val dbList = dbTask.await()
         /*鉴黄数据*/
         val greenList = greenListTask.await()
         val greenListTemp = mutableListOf<String>()
@@ -94,11 +94,12 @@ object MediaUtil {
         Timber.i("getData greenList-->${greenList}")
         val dbAlbumBean = AlbumBean(
             displayName = "RECYCLER_IMG_DB",
-            list = dblist.toMutableList(),
+            list = dbList.toMutableList(),
             relative_path = "RECYCLER_IMG_DB"
         )
-        Timber.i("getData dblist.size-->${dblist.size}")
-        Timber.i("getData dblist-->${dblist}")
+        Timber.i("getData dblist.size-->${dbList.size}")
+        Timber.i("getData dblist-->${dbList}")
+        /*所有图片和视频*/
         val allAlbumBeanMap = mutableMapOf<String, AlbumBean>()
         /*所有图片*/
         val image_AlbumBean = image_AlbumBeanTask.await()
@@ -112,16 +113,42 @@ object MediaUtil {
                 allAlbumBeanMap[it.key] = it.value
             }
         }
+
+        /*所有图片和视频的list*/
         val mAlbumBeanList = mutableListOf<AlbumBean>()
         mAlbumBeanList.addAll(allAlbumBeanMap.values)
         mAlbumBeanList.add(dbAlbumBean)
-        mAlbumBeanList.forEach { albumbean ->
-            albumbean.list.forEach {
+
+        /*
+        * 处理新建空相册逻辑1
+        * */
+        val emptyAlbums=emptyAlbumsTask.await()
+        Timber.i("emptyAlbums frist-->$emptyAlbums")
+        var removeCount=0;
+
+        mAlbumBeanList.forEach { albumBean ->
+            if(albumBean.list.size>0){
+                emptyAlbums.remove(albumBean.relative_path)?.let {
+                    removeCount++
+                    Timber.i("emptyAlbums remove -->$it")
+                }
+            }
+            /*
+            * 处理加密逻辑
+            * */
+            albumBean.list.forEach {
                 if (greenListTemp.contains(it.path)) {
                     greenListTemp.remove(it.path)
                     it.mEncryptFile = true
                 }
             }
+        }
+        /*
+        * 处理新建空相册逻辑2
+        * */
+        if(removeCount>0){
+            val list=emptyAlbums.values.toList()
+            saveEmptyAlbumsData(list)
         }
         /*
         *
@@ -130,8 +157,10 @@ object MediaUtil {
         launch(Dispatchers.Default){
             Timber.i("getData  mAlbumBeanList-->$mAlbumBeanList")
         }
-        val emptyAlbums=emptyAlbumsTask.await()
-        Timber.i("emptyAlbums-->$emptyAlbums")
+        Timber.i("emptyAlbums over-->$emptyAlbums")
+        /*
+        * 发送数据
+        * */
         albumData.emit(
             AlbumData(
                 alllist = mAlbumBeanList,
@@ -317,8 +346,8 @@ object MediaUtil {
             e.printStackTrace()
         }
     }
-    fun getEmptyAlbums(): List<AlbumBean> {
-        val result: List<AlbumBean> = ArrayList<AlbumBean>()
+    private fun getEmptyAlbums(): MutableMap<String,AlbumBean> {
+        val result= mutableMapOf<String,AlbumBean>()
         val emptyFoldersDataStr = getEmptyAlbumsData()
         Timber.i("emptyFoldersDataStr = $emptyFoldersDataStr")
         if (TextUtils.isEmpty(emptyFoldersDataStr)) {
@@ -332,8 +361,8 @@ object MediaUtil {
                 if (emptyFolderNames.isNotEmpty()) {
                     emptyFolderNames.forEach {
                         it.relative_path=Environment.DIRECTORY_PICTURES+File.separator+it.displayName+File.separator
+                        result[it.relative_path] = it
                     }
-                    return emptyFolderNames
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
