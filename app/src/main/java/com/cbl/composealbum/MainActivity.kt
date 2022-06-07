@@ -29,7 +29,7 @@ fun Greeting(name: String) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         data.alllist.forEach {
             item {
-                Text(text = "${it.displayName}  size:${it.list.size}")
+                Text(text = "${it.getShowName()}  size:${it.list.size}")
             }
         }
     }

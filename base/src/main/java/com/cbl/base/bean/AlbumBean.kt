@@ -10,6 +10,18 @@ package com.cbl.base.bean
  */
 data class AlbumBean(
     val list: MutableList<MediaBean> = mutableListOf(),
-    val displayName: String = "",
+    var displayName: String = "",
     var relative_path: String = ""
-)
+){
+    fun getShowName():String{
+        return if(displayName.isEmpty()){
+            "设备存储"
+        }else if (relative_path.equals("DCIM/Camera/")){
+            "相机"
+        }else if (relative_path.equals("Pictures/Screenshots/")){
+            "截屏"
+        }else{
+            displayName
+        }
+    }
+}

@@ -97,7 +97,7 @@ object MediaUtil {
         greenListTemp.addAll(greenList)
         Timber.i("getData greenList-->${greenList}")
         val dbAlbumBean = AlbumBean(
-            displayName = "RECYCLER_IMG_DB",
+            displayName = "最近删除",
             list = dbList.toMutableList(),
             relative_path = "RECYCLER_IMG_DB"
         )
@@ -130,6 +130,7 @@ object MediaUtil {
         Timber.i("emptyAlbums frist-->$emptyAlbums")
         var removeCount=0;
 
+
         mAlbumBeanList.forEach { albumBean ->
             if(albumBean.list.size>0){
                 emptyAlbums.remove(albumBean.relative_path)?.let {
@@ -146,6 +147,7 @@ object MediaUtil {
                     it.mEncryptFile = true
                 }
             }
+
         }
         /*
         * 处理新建空相册逻辑2
