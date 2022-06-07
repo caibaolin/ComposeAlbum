@@ -10,6 +10,6 @@ package com.cbl.base.bean
  */
 data class AlbumBean(
     val list: MutableList<MediaBean> = mutableListOf(),
-    val name: String = "",
-    val relative_path: String = ""
+    val displayName: String = "",
+    var relative_path: String = ""
 )

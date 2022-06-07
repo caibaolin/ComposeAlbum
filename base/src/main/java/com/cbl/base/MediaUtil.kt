@@ -12,16 +12,21 @@ import com.cbl.base.bean.AlbumData
 import com.cbl.base.bean.GreenManager
 import com.cbl.base.bean.MediaBean
 import com.cbl.base.dao.AppDatabase
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.io.File
+import java.io.*
 import java.util.concurrent.TimeUnit
 
-
+private val PICTURE_PATH =
+    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).path
+private val PICTURE_CONFIG_PATH = PICTURE_PATH + File.separator + ".config"
+private val EMPTY_ALBUMS_DATA_FILE_PATH = PICTURE_PATH + File.separator + "emptyAlbum"
 object MediaUtil {
     val albumData = MutableStateFlow(AlbumData())
     private val projection = arrayOf(
@@ -78,6 +83,7 @@ object MediaUtil {
         val video_AlbumBeanTask = async { getData(MediaStore.Video.Media.EXTERNAL_CONTENT_URI) }
         val dbTask = async { getDataByDb() }
         val greenListTask = async { GreenManager.getIGreenManager().interceptedFilePathList }
+        val emptyAlbumsTask=async { getEmptyAlbums() }
         deleteAlbumHideFileTask.await()
         /*回收站数据*/
         val dblist = dbTask.await()
@@ -87,7 +93,7 @@ object MediaUtil {
         greenListTemp.addAll(greenList)
         Timber.i("getData greenList-->${greenList}")
         val dbAlbumBean = AlbumBean(
-            name = "RECYCLER_IMG_DB",
+            displayName = "RECYCLER_IMG_DB",
             list = dblist.toMutableList(),
             relative_path = "RECYCLER_IMG_DB"
         )
@@ -124,6 +130,8 @@ object MediaUtil {
         launch(Dispatchers.Default){
             Timber.i("getData  mAlbumBeanList-->$mAlbumBeanList")
         }
+        val emptyAlbums=emptyAlbumsTask.await()
+        Timber.i("emptyAlbums-->$emptyAlbums")
         albumData.emit(
             AlbumData(
                 alllist = mAlbumBeanList,
@@ -175,7 +183,7 @@ object MediaUtil {
                     albumMap[mediaBean.relative_path]?.list?.add(mediaBean)
                 } else {
                     val albumBean = AlbumBean(
-                        name = mediaBean.bucket_display_name,
+                        displayName = mediaBean.bucket_display_name,
                         relative_path = mediaBean.relative_path
                     )
                     albumBean.list.add(mediaBean)
@@ -214,7 +222,7 @@ object MediaUtil {
                     albumMap[mediaBean.relative_path]?.list?.add(mediaBean)
                 } else {
                     val albumBean = AlbumBean(
-                        name = mediaBean.bucket_display_name,
+                        displayName = mediaBean.bucket_display_name,
                         relative_path = mediaBean.relative_path
                     )
                     albumBean.list.add(mediaBean)
@@ -225,7 +233,7 @@ object MediaUtil {
                         albumMapNogif[mediaBean.relative_path]?.list?.add(mediaBean)
                     } else {
                         val albumBean = AlbumBean(
-                            name = mediaBean.bucket_display_name,
+                            displayName = mediaBean.bucket_display_name,
                             relative_path = mediaBean.relative_path
                         )
                         albumBean.list.add(mediaBean)
@@ -288,5 +296,85 @@ object MediaUtil {
             e.printStackTrace()
         }
     }
-
+    fun saveEmptyAlbumsData(emptyAlbums: List<AlbumBean>) {
+        val file = File(PICTURE_PATH)
+        if (!file.exists()) {
+            file.mkdirs()
+        }
+        val dataFile =
+            File(EMPTY_ALBUMS_DATA_FILE_PATH)
+        if (dataFile.exists() && dataFile.isDirectory) {
+            dataFile.delete()
+        }
+        val data = Gson().toJson(emptyAlbums)
+        try {
+            val fileWriter =
+                FileWriter(EMPTY_ALBUMS_DATA_FILE_PATH)
+            fileWriter.write(data)
+            fileWriter.flush()
+            fileWriter.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+    fun getEmptyAlbums(): List<AlbumBean> {
+        val result: List<AlbumBean> = ArrayList<AlbumBean>()
+        val emptyFoldersDataStr = getEmptyAlbumsData()
+        Timber.i("emptyFoldersDataStr = $emptyFoldersDataStr")
+        if (TextUtils.isEmpty(emptyFoldersDataStr)) {
+            return result
+        } else {
+            try {
+                val emptyFolderNames: List<AlbumBean> = Gson().fromJson(
+                    emptyFoldersDataStr,
+                    object : TypeToken<List<AlbumBean>>() {}.type
+                )
+                if (emptyFolderNames.isNotEmpty()) {
+                    emptyFolderNames.forEach {
+                        it.relative_path=Environment.DIRECTORY_PICTURES+File.separator+it.displayName+File.separator
+                    }
+                    return emptyFolderNames
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        return result
+    }
+    /**
+     * @return 手动创建空相册保存起来的json数据
+     */
+    private fun getEmptyAlbumsData(): String? {
+        val file= File(PICTURE_PATH)
+        if (!file.exists()) {
+            return null
+        }
+        val dataFile=
+            File(EMPTY_ALBUMS_DATA_FILE_PATH)
+        if (dataFile.exists() && dataFile.isDirectory) {
+            return null
+        }
+        var fileReader: FileReader? = null
+        var buffer: BufferedReader? = null
+        val emptyAlbumsDataSB = StringBuilder()
+        try {
+            fileReader =
+                FileReader(EMPTY_ALBUMS_DATA_FILE_PATH)
+            buffer = BufferedReader(fileReader)
+            var line: String?
+            while (buffer.readLine().also { line = it } != null) {
+                emptyAlbumsDataSB.append(line)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            try {
+                fileReader?.close()
+                buffer?.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        return emptyAlbumsDataSB.toString()
+    }
 }

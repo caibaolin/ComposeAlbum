@@ -8,6 +8,7 @@ package com.cbl.base.bean
  *     desc   :
  * </pre>
  */
+
 data class AlbumData(
     val alllist: MutableList<AlbumBean> = mutableListOf(),
     val imageAlbums: MutableMap<String, AlbumBean> = mutableMapOf(),
