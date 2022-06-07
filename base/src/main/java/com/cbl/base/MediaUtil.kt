@@ -74,7 +74,7 @@ object MediaUtil {
     suspend fun getData() = coroutineScope {
         val time = System.currentTimeMillis();
         val deleteAlbumHideFileTask=async { deleteAlbumHideFile() }
-        val image_AlbumBeanTask = async { getData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI) }
+        val image_AlbumBeanTask = async { getData2(MediaStore.Images.Media.EXTERNAL_CONTENT_URI) }
         val video_AlbumBeanTask = async { getData(MediaStore.Video.Media.EXTERNAL_CONTENT_URI) }
         val dbTask = async { getDataByDb() }
         val greenListTask = async { GreenManager.getIGreenManager().interceptedFilePathList }
@@ -98,7 +98,7 @@ object MediaUtil {
         val image_AlbumBean = image_AlbumBeanTask.await()
         /*所有视频*/
         val video_AlbumBean = video_AlbumBeanTask.await()
-        allAlbumBeanMap.putAll(image_AlbumBean)
+        allAlbumBeanMap.putAll(image_AlbumBean[0])
         video_AlbumBean.forEach {
             if (allAlbumBeanMap.containsKey(it.key)) {
                 allAlbumBeanMap[it.key]?.list?.addAll(it.value.list)
@@ -127,7 +127,8 @@ object MediaUtil {
         albumData.emit(
             AlbumData(
                 alllist = mAlbumBeanList,
-                imageAlbums = image_AlbumBean,
+                imageAlbums = image_AlbumBean[0],
+                imageAlbumsNoGif=image_AlbumBean[1],
                 videoAlbums = video_AlbumBean,
                 dbAlbumBean = dbAlbumBean,
                 greenList = greenList
@@ -185,7 +186,57 @@ object MediaUtil {
         }
         return albumMap
     }
-
+    /**
+     * 需要从数据库中获取的信息：
+     * BUCKET_DISPLAY_NAME  文件夹名称
+     * DATA  文件路径
+     */
+    private fun getData2(uri: Uri): List<MutableMap<String, AlbumBean>> {
+        Timber.i(
+            "getData start thread-->${Thread.currentThread().name}  Images uri-->${MediaStore.Images.Media.EXTERNAL_CONTENT_URI}" +
+                    "  video uri-->${MediaStore.Video.Media.EXTERNAL_CONTENT_URI} current uri-->${uri}"
+        )
+        val albumMap = mutableMapOf<String, AlbumBean>()
+        val albumMapNogif = mutableMapOf<String, AlbumBean>()
+        var cursor: Cursor? = BaseApp.CONTEXT.getContentResolver().query(
+            uri,  //限制类型为图片
+            projection,
+            null,
+            null,  // 这里筛选了jpg和png格式的图片
+            MediaStore.Images.Media.DATE_ADDED
+        ) // 排序方式：按添加时间排序
+        Timber.i("getData  thread-->${Thread.currentThread().name}  count-->${cursor?.count}")
+        cursor?.let {
+            while (it.moveToNext()) {
+                val mediaBean = getMediaBeanFromCursor(it);
+//                Timber.i("displayName-->${mediaBean.bucket_display_name} path-->${mediaBean.path}")
+                if (albumMap.containsKey(mediaBean.relative_path)) {
+                    albumMap[mediaBean.relative_path]?.list?.add(mediaBean)
+                } else {
+                    val albumBean = AlbumBean(
+                        name = mediaBean.bucket_display_name,
+                        relative_path = mediaBean.relative_path
+                    )
+                    albumBean.list.add(mediaBean)
+                    albumMap[mediaBean.relative_path] = albumBean
+                }
+                if(mediaBean.mimeType?.contains("gif") == false){
+                    if (albumMapNogif.containsKey(mediaBean.relative_path)) {
+                        albumMapNogif[mediaBean.relative_path]?.list?.add(mediaBean)
+                    } else {
+                        val albumBean = AlbumBean(
+                            name = mediaBean.bucket_display_name,
+                            relative_path = mediaBean.relative_path
+                        )
+                        albumBean.list.add(mediaBean)
+                        albumMapNogif[mediaBean.relative_path] = albumBean
+                    }
+                }
+            }
+            it.close()
+        }
+        return listOf(albumMap,albumMapNogif)
+    }
 
 
     /*
