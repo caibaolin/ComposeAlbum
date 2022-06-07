@@ -78,13 +78,17 @@ object MediaUtil {
 
     suspend fun getData() = coroutineScope {
         val time = System.currentTimeMillis();
-        val deleteAlbumHideFileTask=async { deleteAlbumHideFile() }
+        /*
+        *删除隐藏的文件夹
+        * */
+        launch(Dispatchers.Default){
+            deleteAlbumHideFile()
+        }
         val image_AlbumBeanTask = async { getData2(MediaStore.Images.Media.EXTERNAL_CONTENT_URI) }
         val video_AlbumBeanTask = async { getData(MediaStore.Video.Media.EXTERNAL_CONTENT_URI) }
         val dbTask = async { getDataByDb() }
         val greenListTask = async { GreenManager.getIGreenManager().interceptedFilePathList }
         val emptyAlbumsTask=async { getEmptyAlbums() }
-        deleteAlbumHideFileTask.await()
         /*回收站数据*/
         val dbList = dbTask.await()
         /*鉴黄数据*/
