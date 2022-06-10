@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cbl.base.MediaUtil
 import com.cbl.base.bean.AlbumBean
+import com.cbl.base.bean.MediaBean
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -65,12 +66,17 @@ class HomeViewModel : ViewModel() {
             viewStates = viewStates.copy(clickAlbumBean = bean)
         }
     }
+    private fun changeSort(){
+   
+    }
 
     fun dispatch(action: HomeViewAction) {
         Timber.i("dispatch action-->$action")
         when (action) {
             is HomeViewAction.RegisterMedia -> registerMedia()
             is HomeViewAction.LeftOnClick -> leftOnClick(action.bean)
+            is HomeViewAction.ChangeSort -> changeSort()
+
         }
     }
 
@@ -85,4 +91,5 @@ sealed class HomeViewAction {
     object RegisterMedia : HomeViewAction()
     object LeftEdit : HomeViewAction()
     data class LeftOnClick(val bean: AlbumBean) : HomeViewAction()
+    object ChangeSort : HomeViewAction()
 }

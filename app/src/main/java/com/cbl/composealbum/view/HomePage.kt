@@ -32,6 +32,7 @@ import com.cbl.base.view.LeftLazyItem
 import com.cbl.base.view.RightLazyItem
 import com.cbl.composealbum.ui.theme.app_name
 import com.cbl.composealbum.R
+import timber.log.Timber
 
 /**
  * <pre>
@@ -43,10 +44,7 @@ import com.cbl.composealbum.R
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomePage(viewModel: HomeViewModel= viewModel()) {
-    var index by remember {
-        mutableStateOf(0)
-    }
+fun HomePage(viewModel: HomeViewModel = viewModel()) {
     val constraints = ConstraintSet {
         val leftBox = createRefFor("leftBox")
         val rightBox = createRefFor("rightBox")
@@ -55,6 +53,7 @@ fun HomePage(viewModel: HomeViewModel= viewModel()) {
         val bt_new_album = createRefFor("bt_new_album")
         val left_box_bottom_fun = createRefFor("left_box_bottom_fun")
         val lc_left = createRefFor("lc_left")
+        val bt_right_edit = createRefFor("bt_right_edit")
         val rightgrid = createRefFor("rightgrid")
         constrain(leftBox) {
             width = Dimension.percent(0.29f)
@@ -101,15 +100,22 @@ fun HomePage(viewModel: HomeViewModel= viewModel()) {
             start.linkTo(leftBox.start)
             end.linkTo(leftBox.end)
         }
-        constrain(rightgrid){
+        constrain(bt_right_edit) {
+            top.linkTo(appName.top)
+            bottom.linkTo(appName.bottom)
+            end.linkTo(rightBox.end, 10.dp)
+        }
+        constrain(rightgrid) {
             width = Dimension.fillToConstraints
             height = Dimension.fillToConstraints
-            top.linkTo(rightBox.top)
+            top.linkTo(rightBox.top,50.dp)
             bottom.linkTo(rightBox.bottom)
             start.linkTo(rightBox.start)
             end.linkTo(rightBox.end)
         }
     }
+    Timber.i("ConstraintLayout compose")
+
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize(), constraintSet = constraints
@@ -129,7 +135,11 @@ fun HomePage(viewModel: HomeViewModel= viewModel()) {
                 }, fontSize = 25.sp
         )
         IconButton(modifier = Modifier.layoutId("bt_left_edit"), onClick = { }) {
-            Image(painter = painterResource(id = R.drawable.ic_h_edit2), contentDescription = "", modifier = Modifier.size(50.dp))
+            Image(
+                painter = painterResource(id = R.drawable.ic_h_edit2),
+                contentDescription = "",
+                modifier = Modifier.size(50.dp)
+            )
         }
         Text(text = "新建相册", modifier = Modifier.layoutId("bt_new_album"))
         Box(
@@ -143,9 +153,15 @@ fun HomePage(viewModel: HomeViewModel= viewModel()) {
                 .layoutId("lc_left")
 
         ) {
-            viewModel.viewStates.albumList.forEach{
-                item(key = it.relative_path){
-                    LeftLazyItem(it, onClick = { viewModel.dispatch(HomeViewAction.LeftOnClick(it)) }, clickSelect = (it==viewModel.viewStates.clickAlbumBean))
+            Timber.i("LazyColumn compose")
+
+            viewModel.viewStates.albumList.forEach {
+                item(key = it.relative_path) {
+                    LeftLazyItem(
+                        it,
+                        onClick = { viewModel.dispatch(HomeViewAction.LeftOnClick(it)) },
+                        clickSelect = (it == viewModel.viewStates.clickAlbumBean)
+                    )
                 }
             }
         }
@@ -158,14 +174,23 @@ fun HomePage(viewModel: HomeViewModel= viewModel()) {
         ) {
 
         }
+        IconButton(modifier = Modifier.layoutId("bt_right_edit"), onClick = {viewModel.dispatch(HomeViewAction.ChangeSort) }) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_h_edit2),
+                contentDescription = "",
+                modifier = Modifier.size(50.dp)
+            )
+        }
         LazyVerticalGrid(
-            modifier=Modifier.layoutId("rightgrid"),
+            modifier = Modifier.layoutId("rightgrid"),
             cells = GridCells.Fixed(6),
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
+            Timber.i("LazyVerticalGrid compose")
             viewModel.viewStates.clickAlbumBean.list.forEach {
                 item {
-                    RightLazyItem(it,{})
+                    RightLazyItem(it, {})
                 }
             }
         }

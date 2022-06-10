@@ -427,4 +427,11 @@ object MediaUtil {
         }
         Timber.i("sortAlbumList over")
     }
+    fun sortMediaListbyName(list:MutableList<MediaBean>){
+        Timber.i("sortAlbumList start")
+        list.sortByDescending {
+            it.path
+        }
+        Timber.i("sortAlbumList over")
+    }
 }
