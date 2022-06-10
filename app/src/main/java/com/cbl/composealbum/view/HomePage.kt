@@ -1,12 +1,14 @@
 package com.cbl.composealbum.view
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -23,8 +25,11 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cbl.base.MediaUtil
 import com.cbl.base.view.LeftLazyItem
+import com.cbl.base.view.RightLazyItem
 import com.cbl.composealbum.ui.theme.app_name
 import com.cbl.composealbum.R
 
@@ -36,10 +41,9 @@ import com.cbl.composealbum.R
  *     desc   :
  * </pre>
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomePage() {
-    val data = MediaUtil.albumData.collectAsState().value
-    MediaUtil.sortAlbumList(data.alllist)
+fun HomePage(viewModel: HomeViewModel= viewModel()) {
     var index by remember {
         mutableStateOf(0)
     }
@@ -51,6 +55,7 @@ fun HomePage() {
         val bt_new_album = createRefFor("bt_new_album")
         val left_box_bottom_fun = createRefFor("left_box_bottom_fun")
         val lc_left = createRefFor("lc_left")
+        val rightgrid = createRefFor("rightgrid")
         constrain(leftBox) {
             width = Dimension.percent(0.29f)
             height = Dimension.fillToConstraints
@@ -96,6 +101,14 @@ fun HomePage() {
             start.linkTo(leftBox.start)
             end.linkTo(leftBox.end)
         }
+        constrain(rightgrid){
+            width = Dimension.fillToConstraints
+            height = Dimension.fillToConstraints
+            top.linkTo(rightBox.top)
+            bottom.linkTo(rightBox.bottom)
+            start.linkTo(rightBox.start)
+            end.linkTo(rightBox.end)
+        }
     }
     ConstraintLayout(
         modifier = Modifier
@@ -130,9 +143,9 @@ fun HomePage() {
                 .layoutId("lc_left")
 
         ) {
-            data.alllist.forEach {
-                item {
-                    LeftLazyItem(it, { })
+            viewModel.viewStates.albumList.forEach{
+                item(key = it.relative_path){
+                    LeftLazyItem(it, onClick = { viewModel.dispatch(HomeViewAction.LeftOnClick(it)) }, clickSelect = (it==viewModel.viewStates.clickAlbumBean))
                 }
             }
         }
@@ -144,6 +157,17 @@ fun HomePage() {
                 )
         ) {
 
+        }
+        LazyVerticalGrid(
+            modifier=Modifier.layoutId("rightgrid"),
+            cells = GridCells.Fixed(6),
+            horizontalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            viewModel.viewStates.clickAlbumBean.list.forEach {
+                item {
+                    RightLazyItem(it,{})
+                }
+            }
         }
     }
 

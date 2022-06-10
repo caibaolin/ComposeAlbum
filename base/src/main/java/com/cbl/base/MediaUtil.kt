@@ -174,7 +174,7 @@ object MediaUtil {
                 greenList = greenList
             )
         )
-        Timber.i("getData over-->${System.currentTimeMillis() - time}")
+        Timber.i("collectLatest getData over-->${System.currentTimeMillis() - time}")
     }
 
     fun getDataByDb(): List<MediaBean> {

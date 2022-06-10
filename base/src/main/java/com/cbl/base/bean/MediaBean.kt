@@ -1,6 +1,7 @@
 package com.cbl.base.bean
 
 import androidx.annotation.Nullable
+import androidx.compose.runtime.Stable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
@@ -46,6 +47,7 @@ public static final String INDEX_DURATION = "DURATION";
 public static final String INDEX_TAKENTIME = "TAKEN_TIME";
 public static final String INDEX_OLD_ID = "OLD_ID";
  */
+@Stable
 @Entity(tableName = "RECYCLER_IMG_DB")
 data class MediaBean(
     @PrimaryKey val _id: Long?,

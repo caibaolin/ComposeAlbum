@@ -1,5 +1,7 @@
 package com.cbl.base.bean
 
+import androidx.compose.runtime.Stable
+
 /**
  * <pre>
  *     author : caibaolin
@@ -16,7 +18,7 @@ val cameraAlbumBean = AlbumBean(displayName = "相机", relative_path = relative
 val screenshotsAlbumBean = AlbumBean(displayName = "截屏", relative_path = relative_path_screenshots)
 val rootAlbumBean = AlbumBean(displayName = "设备存储", relative_path = "/")
 
-
+@Stable
 data class AlbumBean(
     val list: MutableList<MediaBean> = mutableListOf(),
     var displayName: String = "",
