@@ -2,12 +2,14 @@ package com.cbl.base.view
 
 import android.R
 import android.os.Build.VERSION.SDK_INT
+import android.widget.CheckBox
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -37,7 +39,7 @@ import com.cbl.base.bean.MediaBean
  * </pre>
  */
 @Composable
-fun LeftLazyItem(albumBean: AlbumBean, onClick: () -> Unit, clickSelect: Boolean) {
+fun LeftLazyItem(albumBean: AlbumBean, onClick: () -> Unit, clickSelect: Boolean=false,leftEdit: Boolean=false,leftEditSelect: Boolean=false) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -46,7 +48,8 @@ fun LeftLazyItem(albumBean: AlbumBean, onClick: () -> Unit, clickSelect: Boolean
             .clickable {
                 onClick.invoke()
             }) {
-        Text(text = "${albumBean.getShowName()}  ${albumBean.list.size}")
+        Text(text = "${albumBean.getShowName()}  ${albumBean.list.size}", modifier = Modifier.align(
+            Alignment.Center))
     }
 }
 

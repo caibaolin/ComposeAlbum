@@ -18,7 +18,7 @@ const val relative_RECYCLER_IMG_DB = "RECYCLER_IMG_DB"
 const val relative_path_all_media = ".bbkCameraAll"
 val cameraAlbumBean = AlbumBean(displayName = "相机", relative_path = relative_path_camera)
 val screenshotsAlbumBean = AlbumBean(displayName = "截屏", relative_path = relative_path_screenshots)
-val rootAlbumBean = AlbumBean(displayName = "设备存储", relative_path = "/")
+val rootAlbumBean = AlbumBean(displayName = "设备存储", relative_path = relative_path_root)
 val allAlbumBean = AlbumBean(displayName = "所有照片", relative_path = relative_path_all_media)
 
 @Stable
@@ -27,8 +27,9 @@ data class AlbumBean(
     var displayName: String = "",
     var relative_path: String = "",
     var handleName: String = "",
-    val isDbAlbumBean:Boolean=false,
 ) {
+    var isDbAlbumBean:Boolean=false
+    var isCanEdit:Boolean=true
     fun getShowName(): String {
         return when {
             displayName.isEmpty() -> "设备存储"
@@ -37,6 +38,7 @@ data class AlbumBean(
             else -> handleName.ifEmpty { displayName }
         }
     }
+
     fun getTransName():String{
         return when {
             displayName.isEmpty() -> "设备存储"

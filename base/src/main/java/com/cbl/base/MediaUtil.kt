@@ -97,8 +97,9 @@ object MediaUtil {
             displayName = "最近删除",
             list = dbList.toMutableList(),
             relative_path = relative_RECYCLER_IMG_DB,
+        ).apply {
             isDbAlbumBean=true
-        )
+        }
         Timber.i("getData dblist.size-->${dbList.size}")
         Timber.i("getData dblist-->${dbList}")
         /*所有图片和视频*/
@@ -419,8 +420,14 @@ object MediaUtil {
         if(!map.containsKey(cameraAlbumBean.relative_path)){
             map[cameraAlbumBean.relative_path] = cameraAlbumBean
         }
+        map[cameraAlbumBean.relative_path]?.apply {
+            isCanEdit=false
+        }
         if(!map.containsKey(screenshotsAlbumBean.relative_path)){
             map[screenshotsAlbumBean.relative_path] = screenshotsAlbumBean
+        }
+        map[screenshotsAlbumBean.relative_path]?.apply {
+            isCanEdit=false
         }
     }
     suspend fun sortAlbumList(list: MutableList<AlbumBean>): MutableList<AlbumBean> {
