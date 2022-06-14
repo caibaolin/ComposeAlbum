@@ -51,7 +51,7 @@ fun LeftLazyItem(albumBean: AlbumBean, onClick: () -> Unit, clickSelect: Boolean
 }
 
 @Composable
-fun RightLazyItem(mediaBean: MediaBean, onClick: () -> Unit) {
+fun RightLazyItem(mediaBean: MediaBean?, onClick: () -> Unit) {
    /* val imageLoader = ImageLoader.Builder(LocalContext.current)
         .components {
             if (SDK_INT >= 28) {
@@ -79,22 +79,29 @@ fun RightLazyItem(mediaBean: MediaBean, onClick: () -> Unit) {
             }),
         contentDescription = null
     )*/
-    AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(mediaBean.path)
-            .videoFrameMillis(1L)
-            .crossfade(true)
-            .apply {
-                if (mediaBean.mimeType?.contains("video") == true){
-                    decoderFactory(VideoFrameDecoder.Factory())
-                }else if(mediaBean.mimeType?.contains("gif") == true){
-                    decoderFactory(GifDecoder.Factory())
+    if(mediaBean!=null){
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(mediaBean.path)
+                .videoFrameMillis(0L)
+                .crossfade(true)
+                .apply {
+                    if (mediaBean.mimeType?.contains("video") == true){
+                        decoderFactory(VideoFrameDecoder.Factory())
+                    }else if(mediaBean.mimeType?.contains("gif") == true){
+                        decoderFactory(GifDecoder.Factory())
+                    }
                 }
-            }
-            .build(),
+                .build(),
 //        placeholder = painterResource(R.drawable.placeholder),
-        contentDescription=null,
-        contentScale = ContentScale.Crop,
-        modifier = Modifier.aspectRatio(1f),
-    )
+            contentDescription=null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.aspectRatio(1f),
+        )
+    }else{
+        Box(modifier = Modifier.background(Color.Red).aspectRatio(1f)) {
+            
+        }
+    }
+ 
 }

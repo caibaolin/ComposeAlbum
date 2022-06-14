@@ -1,6 +1,7 @@
 package com.cbl.base.bean
 
 import androidx.compose.runtime.Stable
+import java.io.File
 
 /**
  * <pre>
@@ -23,12 +24,17 @@ data class AlbumBean(
     val list: MutableList<MediaBean> = mutableListOf(),
     var displayName: String = "",
     var relative_path: String = "",
-    /*
-    * todo
-    * */
-    var date_modified: Long = 0
+    var handleName: String = "",
 ) {
     fun getShowName(): String {
+        return when {
+            displayName.isEmpty() -> "设备存储"
+            relative_path == relative_path_camera -> "相机"
+            relative_path == relative_path_screenshots -> "截屏"
+            else -> handleName.ifEmpty { displayName }
+        }
+    }
+    fun getTransName():String{
         return when {
             displayName.isEmpty() -> "设备存储"
             relative_path == relative_path_camera -> "相机"
@@ -43,7 +49,7 @@ data class AlbumBean(
             relative_path_screenshots -> Long.MAX_VALUE - 1
             relative_path_root -> Long.MAX_VALUE - 2
             relative_RECYCLER_IMG_DB -> Long.MIN_VALUE
-            else -> date_modified
+            else -> File(relative_path).lastModified()
         }
     }
 }

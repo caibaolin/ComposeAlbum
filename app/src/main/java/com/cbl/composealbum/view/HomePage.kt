@@ -27,6 +27,10 @@ import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.cbl.base.MediaUtil
 import com.cbl.base.view.LeftLazyItem
 import com.cbl.base.view.RightLazyItem
@@ -44,7 +48,7 @@ import timber.log.Timber
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomePage(viewModel: HomeViewModel = viewModel()) {
+fun HomePage(viewModel: HomeViewModel = viewModel(), docall: () -> Unit) {
     val constraints = ConstraintSet {
         val leftBox = createRefFor("leftBox")
         val rightBox = createRefFor("rightBox")
@@ -108,14 +112,13 @@ fun HomePage(viewModel: HomeViewModel = viewModel()) {
         constrain(rightgrid) {
             width = Dimension.fillToConstraints
             height = Dimension.fillToConstraints
-            top.linkTo(rightBox.top,50.dp)
+            top.linkTo(rightBox.top, 50.dp)
             bottom.linkTo(rightBox.bottom)
             start.linkTo(rightBox.start)
             end.linkTo(rightBox.end)
         }
     }
     Timber.i("ConstraintLayout compose")
-
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize(), constraintSet = constraints
@@ -134,7 +137,11 @@ fun HomePage(viewModel: HomeViewModel = viewModel()) {
 
                 }, fontSize = 25.sp
         )
-        IconButton(modifier = Modifier.layoutId("bt_left_edit"), onClick = { }) {
+        IconButton(
+            modifier = Modifier.layoutId("bt_left_edit"),
+            onClick = {/*viewModel.dispatch(HomeViewAction.LeftEdit)*/
+                docall.invoke()
+            }) {
             Image(
                 painter = painterResource(id = R.drawable.ic_h_edit2),
                 contentDescription = "",
@@ -174,7 +181,9 @@ fun HomePage(viewModel: HomeViewModel = viewModel()) {
         ) {
 
         }
-        IconButton(modifier = Modifier.layoutId("bt_right_edit"), onClick = {viewModel.dispatch(HomeViewAction.ChangeSort) }) {
+        IconButton(
+            modifier = Modifier.layoutId("bt_right_edit"),
+            onClick = { viewModel.dispatch(HomeViewAction.ChangeSort) }) {
             Image(
                 painter = painterResource(id = R.drawable.ic_h_edit2),
                 contentDescription = "",

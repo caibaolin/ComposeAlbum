@@ -420,12 +420,16 @@ object MediaUtil {
             map[screenshotsAlbumBean.relative_path] = screenshotsAlbumBean
         }
     }
-    fun sortAlbumList(list:MutableList<AlbumBean>){
+    suspend fun sortAlbumList(list: MutableList<AlbumBean>): MutableList<AlbumBean> {
         Timber.i("sortAlbumList start")
-        list.sortByDescending {
+        val temp = mutableListOf<AlbumBean>()
+        temp.addAll(list)
+        temp.sortByDescending {
             it.getSortKey()
         }
         Timber.i("sortAlbumList over")
+        handleSameAlbums(temp)
+        return temp
     }
     fun sortMediaListbyName(list:MutableList<MediaBean>){
         Timber.i("sortAlbumList start")
@@ -433,5 +437,22 @@ object MediaUtil {
             it.path
         }
         Timber.i("sortAlbumList over")
+    }
+    fun handleSameAlbums(list: MutableList<AlbumBean>) {
+        val map = mutableMapOf<String, Int>()
+        var index: Int? = 0
+        list.forEach {
+            val name = it.getTransName()
+            if (map.containsKey(name)) {
+                index = map[name]
+                it.handleName = name + index
+                index = index?.plus(1)
+            } else {
+                index = 1
+            }
+            index?.let { value ->
+                map[name] = value
+            }
+        }
     }
 }

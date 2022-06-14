@@ -34,9 +34,11 @@ class HomeViewModel : ViewModel() {
     private fun registerMedia() {
         viewModelScope.launch {
             MediaUtil.albumData.collectLatest { albumData ->
-                val sortAllAlbumBeanList = mutableListOf<AlbumBean>()
+                var sortAllAlbumBeanList = mutableListOf<AlbumBean>()
                 sortAllAlbumBeanList.addAll(albumData.alllist)
-                MediaUtil.sortAlbumList(sortAllAlbumBeanList)
+                sortAllAlbumBeanList= withContext(Dispatchers.IO){
+                    MediaUtil.sortAlbumList(sortAllAlbumBeanList)
+                }
                 if (viewStates.clickAlbumBean == initClickAlbumBean) {
                     viewStates = viewStates.copy(
                         albumList = sortAllAlbumBeanList,
@@ -66,8 +68,25 @@ class HomeViewModel : ViewModel() {
             viewStates = viewStates.copy(clickAlbumBean = bean)
         }
     }
-    private fun changeSort(){
-   
+
+    private fun changeSort() {
+
+    }
+
+    private fun leftEdit() {
+        viewStates = viewStates.copy(showAlbumList = true)
+    }
+
+    private fun addAlbum(targetName:String) {
+
+    }
+
+    private fun reNameAlbum(bean: AlbumBean,targetName:String) {
+
+    }
+
+    private fun deleteAlbum(list: MutableList<AlbumBean>) {
+
     }
 
     fun dispatch(action: HomeViewAction) {
@@ -76,7 +95,10 @@ class HomeViewModel : ViewModel() {
             is HomeViewAction.RegisterMedia -> registerMedia()
             is HomeViewAction.LeftOnClick -> leftOnClick(action.bean)
             is HomeViewAction.ChangeSort -> changeSort()
-
+            is HomeViewAction.LeftEdit -> leftEdit()
+            is HomeViewAction.LeftEdit -> leftEdit()
+            is HomeViewAction.LeftEdit -> leftEdit()
+            is HomeViewAction.LeftEdit -> leftEdit()
         }
     }
 
@@ -84,7 +106,8 @@ class HomeViewModel : ViewModel() {
 
 data class HomeViewState(
     val albumList: List<AlbumBean> = emptyList<AlbumBean>(),
-    val clickAlbumBean: AlbumBean = AlbumBean()
+    val clickAlbumBean: AlbumBean = AlbumBean(),
+    val showAlbumList: Boolean = false
 )
 
 sealed class HomeViewAction {
@@ -92,4 +115,7 @@ sealed class HomeViewAction {
     object LeftEdit : HomeViewAction()
     data class LeftOnClick(val bean: AlbumBean) : HomeViewAction()
     object ChangeSort : HomeViewAction()
+    data class ReNameAlbumAction(val bean: AlbumBean, val targetName:String) : HomeViewAction()
+    data class AddAlbumAction(val targetName:String) : HomeViewAction()
+    data class DeleteAlbumAction(val list: MutableList<AlbumBean>) : HomeViewAction()
 }
