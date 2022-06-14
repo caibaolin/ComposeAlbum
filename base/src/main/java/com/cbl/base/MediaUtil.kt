@@ -96,7 +96,8 @@ object MediaUtil {
         val dbAlbumBean = AlbumBean(
             displayName = "最近删除",
             list = dbList.toMutableList(),
-            relative_path = relative_RECYCLER_IMG_DB
+            relative_path = relative_RECYCLER_IMG_DB,
+            isDbAlbumBean=true
         )
         Timber.i("getData dblist.size-->${dbList.size}")
         Timber.i("getData dblist-->${dbList}")
@@ -161,6 +162,7 @@ object MediaUtil {
             Timber.i("getData  mAlbumBeanList-->$mAlbumBeanList")
         }
         Timber.i("emptyAlbums over-->$emptyAlbums")
+        val allAlbumBean= createAllMediaAlbum(mAlbumBeanList)
         /*
         * 发送数据
         * */
@@ -171,7 +173,8 @@ object MediaUtil {
                 imageAlbumsNoGif=image_AlbumBean[1],
                 videoAlbums = video_AlbumBean,
                 dbAlbumBean = dbAlbumBean,
-                greenList = greenList
+                greenList = greenList,
+                allAlbumBean = allAlbumBean
             )
         )
         Timber.i("collectLatest getData over-->${System.currentTimeMillis() - time}")
@@ -454,5 +457,14 @@ object MediaUtil {
                 map[name] = value
             }
         }
+    }
+    fun createAllMediaAlbum(alllist: MutableList<AlbumBean>):AlbumBean{
+        allAlbumBean.list.clear()
+        alllist.forEach {
+            if(!it.isDbAlbumBean){
+                allAlbumBean.list.addAll(it.list)
+            }
+        }
+        return allAlbumBean
     }
 }

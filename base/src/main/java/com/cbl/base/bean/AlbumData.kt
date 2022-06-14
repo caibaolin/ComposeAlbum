@@ -15,7 +15,8 @@ data class AlbumData(
     val imageAlbumsNoGif: MutableMap<String, AlbumBean> = mutableMapOf(),
     val videoAlbums: MutableMap<String, AlbumBean> = mutableMapOf(),
     val greenList: List<String> = listOf(),
-    val dbAlbumBean: AlbumBean = AlbumBean()
+    val dbAlbumBean: AlbumBean = AlbumBean(),
+    val allAlbumBean: AlbumBean=AlbumBean()
 )
 /*
 data class AlbumData(

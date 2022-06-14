@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.cbl.base.MediaUtil
 import com.cbl.base.bean.AlbumBean
 import com.cbl.base.bean.MediaBean
+import com.cbl.base.bean.allAlbumBean
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -35,6 +36,7 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             MediaUtil.albumData.collectLatest { albumData ->
                 var sortAllAlbumBeanList = mutableListOf<AlbumBean>()
+                sortAllAlbumBeanList.add(0,albumData.allAlbumBean)
                 sortAllAlbumBeanList.addAll(albumData.alllist)
                 sortAllAlbumBeanList= withContext(Dispatchers.IO){
                     MediaUtil.sortAlbumList(sortAllAlbumBeanList)
