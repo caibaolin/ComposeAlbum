@@ -112,7 +112,7 @@ fun HomePage(viewModel: HomeViewModel = viewModel(), docall: () -> Unit) {
         constrain(rightgrid) {
             width = Dimension.fillToConstraints
             height = Dimension.fillToConstraints
-            top.linkTo(rightBox.top, 50.dp)
+            top.linkTo(bt_right_edit.bottom, 50.dp)
             bottom.linkTo(rightBox.bottom)
             start.linkTo(rightBox.start)
             end.linkTo(rightBox.end)

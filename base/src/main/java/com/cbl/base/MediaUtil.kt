@@ -438,7 +438,7 @@ object MediaUtil {
         }
         Timber.i("sortAlbumList over")
     }
-    fun handleSameAlbums(list: MutableList<AlbumBean>) {
+    private fun handleSameAlbums(list: MutableList<AlbumBean>) {
         val map = mutableMapOf<String, Int>()
         var index: Int? = 0
         list.forEach {

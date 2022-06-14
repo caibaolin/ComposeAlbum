@@ -99,9 +99,20 @@ fun RightLazyItem(mediaBean: MediaBean?, onClick: () -> Unit) {
             modifier = Modifier.aspectRatio(1f),
         )
     }else{
-        Box(modifier = Modifier.background(Color.Red).aspectRatio(1f)) {
+        Box(modifier = Modifier
+            .background(Color.Red)
+            .aspectRatio(1f)) {
             
         }
     }
  
+}
+@Composable
+fun CommonAlbum(albumBean: AlbumBean) {
+    Column() {
+        RightLazyItem(mediaBean = albumBean.list.firstOrNull(),{})
+        Text(text = albumBean.getShowName())
+        Text(text = "${albumBean.list.size}")
+    }
+
 }

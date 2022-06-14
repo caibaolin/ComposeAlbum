@@ -23,7 +23,7 @@ fun MainPage() {
             })
         }
         composable("SelectAlbumPage") {
-            SelectAlbumPage(backCall = {})
+            SelectAlbumPage(backCall = {navController.popBackStack()})
         }
     }
 

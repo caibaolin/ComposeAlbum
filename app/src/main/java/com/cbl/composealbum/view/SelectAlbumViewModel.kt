@@ -7,8 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cbl.base.MediaUtil
 import com.cbl.base.bean.AlbumBean
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * <pre>
@@ -29,9 +31,11 @@ class SelectAlbumViewModel : ViewModel() {
     private fun registerMedia() {
         viewModelScope.launch {
             MediaUtil.albumData.collectLatest { albumData ->
-                val sortAllAlbumBeanList = mutableListOf<AlbumBean>()
+                var sortAllAlbumBeanList = mutableListOf<AlbumBean>()
                 sortAllAlbumBeanList.addAll(albumData.alllist)
-                MediaUtil.sortAlbumList(sortAllAlbumBeanList)
+                sortAllAlbumBeanList= withContext(Dispatchers.IO){
+                    MediaUtil.sortAlbumList(sortAllAlbumBeanList)
+                }
                 viewStates = viewStates.copy(albumList = sortAllAlbumBeanList)
 
             }
