@@ -15,6 +15,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -152,6 +153,18 @@ fun HomePage(viewModel: HomeViewModel = viewModel(), docall: () -> Unit) {
                 .layoutId("left_box_bottom_fun"),
             contentAlignment = Alignment.Center
         ){
+            Spacer(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .height(4.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color.Black),
+                        ),
+                        alpha = 0.1f,
+                    )
+            )
             LeftAddAlbum()
         }
 
