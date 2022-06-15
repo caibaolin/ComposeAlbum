@@ -12,5 +12,9 @@ val Pink40 = Color(0xFF7D5260)
 
 val h_black_90 = Color(0xe6000000)
 val h_black_70 = Color(0xb3000000)
+val h_black_50 = Color(0xb3000000)
+
+val h_red_9=Color(0x17E36281)
+val theme_color=Color(0xffE36281)
 val app_name = h_black_90
 val album_item = h_black_70

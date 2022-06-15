@@ -99,6 +99,7 @@ object MediaUtil {
             relative_path = relative_RECYCLER_IMG_DB,
         ).apply {
             isDbAlbumBean=true
+            isCanEdit=false
         }
         Timber.i("getData dblist.size-->${dbList.size}")
         Timber.i("getData dblist-->${dbList}")

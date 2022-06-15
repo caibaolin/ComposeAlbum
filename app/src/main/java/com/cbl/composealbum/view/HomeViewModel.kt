@@ -65,9 +65,16 @@ class HomeViewModel : ViewModel() {
 
     private fun leftOnClick(bean: AlbumBean) {
         Timber.i("leftOnClick albumBean")
-        if (viewStates.albumList.contains(bean)) {
-            Timber.i("leftOnClick albumBean copy")
-            viewStates = viewStates.copy(clickAlbumBean = bean)
+        if(!viewStates.showLeftEdit){
+            if(!bean.isCanEdit){
+                return
+            }
+            leftEditSelect(bean)
+        }else{
+            if (viewStates.albumList.contains(bean)) {
+                Timber.i("leftOnClick albumBean copy")
+                viewStates = viewStates.copy(clickAlbumBean = bean)
+            }
         }
     }
 
@@ -76,7 +83,8 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun leftEdit() {
-        viewStates = viewStates.copy(showLeftEdit = true)
+        val temp=!viewStates.showLeftEdit
+        viewStates = viewStates.copy(showLeftEdit = temp)
     }
 
     private fun addAlbum(targetName:String) {
@@ -98,19 +106,18 @@ class HomeViewModel : ViewModel() {
             is HomeViewAction.LeftOnClick -> leftOnClick(action.bean)
             is HomeViewAction.ChangeSort -> changeSort()
             is HomeViewAction.LeftEdit -> leftEdit()
-            is HomeViewAction.LeftEditSelect -> leftEditSelect(action.bean,action.select)
             is HomeViewAction.ReNameAlbumAction -> reNameAlbum(action.bean,action.targetName)
             is HomeViewAction.AddAlbumAction -> addAlbum(action.targetName)
             is HomeViewAction.DeleteAlbumAction -> deleteAlbum(action.list)
         }
     }
-    private fun leftEditSelect( bean: AlbumBean, select: Boolean){
+    private fun leftEditSelect( bean: AlbumBean){
         val temp: MutableList<AlbumBean> = mutableListOf<AlbumBean>()
         temp.addAll(viewStates.leftEditSelectList)
-        if(select){
-            temp.add(bean)
-        }else{
+        if(temp.contains(bean)){
             temp.remove(bean)
+        }else{
+            temp.add(bean)
         }
         viewStates=viewStates.copy(leftEditSelectList = temp)
     }
@@ -120,14 +127,13 @@ class HomeViewModel : ViewModel() {
 data class HomeViewState(
     val albumList: List<AlbumBean> = emptyList<AlbumBean>(),
     val clickAlbumBean: AlbumBean = AlbumBean(),
-    val showLeftEdit: Boolean = false,
+    val showLeftEdit: Boolean = true,
     val leftEditSelectList: List<AlbumBean> = emptyList<AlbumBean>(),
 )
 
 sealed class HomeViewAction {
     object RegisterMedia : HomeViewAction()
-    data class LeftEdit(val leftEdit: Boolean) : HomeViewAction()
-    data class LeftEditSelect(val bean: AlbumBean,val select: Boolean) : HomeViewAction()
+    object LeftEdit : HomeViewAction()
     data class LeftOnClick(val bean: AlbumBean) : HomeViewAction()
     object ChangeSort : HomeViewAction()
     data class ReNameAlbumAction(val bean: AlbumBean, val targetName:String) : HomeViewAction()

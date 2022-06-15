@@ -1,5 +1,6 @@
 package com.cbl.composealbum.view
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,6 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cbl.base.MediaUtil
+import com.cbl.base.view.LeftAddAlbum
 import com.cbl.base.view.LeftLazyItem
 import com.cbl.base.view.RightLazyItem
 import com.cbl.composealbum.ui.theme.app_name
@@ -54,7 +57,6 @@ fun HomePage(viewModel: HomeViewModel = viewModel(), docall: () -> Unit) {
         val rightBox = createRefFor("rightBox")
         val appName = createRefFor("appName")
         val bt_left_edit = createRefFor("bt_left_edit")
-        val bt_new_album = createRefFor("bt_new_album")
         val left_box_bottom_fun = createRefFor("left_box_bottom_fun")
         val lc_left = createRefFor("lc_left")
         val bt_right_edit = createRefFor("bt_right_edit")
@@ -83,14 +85,9 @@ fun HomePage(viewModel: HomeViewModel = viewModel(), docall: () -> Unit) {
             bottom.linkTo(appName.bottom)
             end.linkTo(leftBox.end, 10.dp)
         }
-        constrain(bt_new_album) {
-            start.linkTo(leftBox.start)
-            end.linkTo(leftBox.end)
-            bottom.linkTo(leftBox.bottom)
-        }
         constrain(left_box_bottom_fun) {
             width = Dimension.fillToConstraints
-            height = Dimension.value(50.dp)
+            height = Dimension.ratio("288:127")
             start.linkTo(leftBox.start)
             end.linkTo(leftBox.end)
             bottom.linkTo(leftBox.bottom)
@@ -131,29 +128,32 @@ fun HomePage(viewModel: HomeViewModel = viewModel(), docall: () -> Unit) {
                 )
         )
         Text(
-            text = "相册", color = app_name, fontWeight = FontWeight.Bold, modifier = Modifier
+            text = "相册", color = app_name, fontWeight = FontWeight(500), modifier = Modifier
                 .layoutId("appName")
                 .clickable {
 
-                }, fontSize = 25.sp
+                }, fontSize = 28.sp
         )
-        IconButton(
-            modifier = Modifier.layoutId("bt_left_edit"),
-            onClick = {/*viewModel.dispatch(HomeViewAction.LeftEdit)*/
-                docall.invoke()
-            }) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_h_edit2),
-                contentDescription = "",
-                modifier = Modifier.size(50.dp)
-            )
+        AnimatedVisibility(visible = viewModel.viewStates.showLeftEdit, modifier = Modifier.layoutId("bt_left_edit")) {
+            IconButton(
+               /* modifier = Modifier.layoutId("bt_left_edit"),*/
+                onClick = {
+                    viewModel.dispatch(HomeViewAction.LeftEdit)
+                }) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_h_edit2),
+                    contentDescription = "",
+                    modifier = Modifier.size(50.dp)
+                )
+            }
         }
-        Text(text = "新建相册", modifier = Modifier.layoutId("bt_new_album"))
         Box(
             modifier = Modifier
-                .layoutId("left_box_bottom_fun")
-                .background(Color.Black)
-        )
+                .layoutId("left_box_bottom_fun"),
+            contentAlignment = Alignment.Center
+        ){
+            LeftAddAlbum()
+        }
 
         LazyColumn(
             modifier = Modifier
@@ -167,7 +167,9 @@ fun HomePage(viewModel: HomeViewModel = viewModel(), docall: () -> Unit) {
                     LeftLazyItem(
                         it,
                         onClick = { viewModel.dispatch(HomeViewAction.LeftOnClick(it)) },
-                        clickSelect = (it == viewModel.viewStates.clickAlbumBean)
+                        clickSelect = (it == viewModel.viewStates.clickAlbumBean),
+                        leftEdit = !viewModel.viewStates.showLeftEdit&&it.isCanEdit,
+                        leftEditSelect = viewModel.viewStates.leftEditSelectList.contains(it)
                     )
                 }
             }

@@ -19,7 +19,9 @@ const val relative_path_all_media = ".bbkCameraAll"
 val cameraAlbumBean = AlbumBean(displayName = "相机", relative_path = relative_path_camera)
 val screenshotsAlbumBean = AlbumBean(displayName = "截屏", relative_path = relative_path_screenshots)
 val rootAlbumBean = AlbumBean(displayName = "设备存储", relative_path = relative_path_root)
-val allAlbumBean = AlbumBean(displayName = "所有照片", relative_path = relative_path_all_media)
+val allAlbumBean = AlbumBean(displayName = "所有照片", relative_path = relative_path_all_media).apply {
+    isCanEdit=false
+}
 
 @Stable
 data class AlbumBean(
