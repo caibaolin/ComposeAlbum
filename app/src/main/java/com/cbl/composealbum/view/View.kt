@@ -6,12 +6,17 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -20,7 +25,15 @@ import androidx.compose.ui.graphics.LinearGradientShader
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.ImageLoader
@@ -187,4 +200,38 @@ fun CommonAlbum(albumBean: AlbumBean) {
         Text(text = "${albumBean.list.size}")
     }
 
+}
+@Composable
+fun CommonTxt(txt:String,onClick: () -> Unit){
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressedAsState = interactionSource.collectIsPressedAsState()
+    Text(
+        text = txt,
+        fontSize = 24.sp,
+        fontWeight = FontWeight(500),
+        color = theme_color,
+        modifier = Modifier
+            .scale(if (isPressedAsState.value) 0.9f else 1f)
+            .alpha(if (isPressedAsState.value) 0.8f else 1f)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick)
+    )
+}
+@Composable
+fun CommonBox( content: @Composable () -> Unit,onClick: () -> Unit){
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressedAsState = interactionSource.collectIsPressedAsState()
+    Box(
+        modifier = Modifier
+            .scale(if (isPressedAsState.value) 0.9f else 1f)
+            .alpha(if (isPressedAsState.value) 0.8f else 1f)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick)
+    ){
+        content()
+    }
 }

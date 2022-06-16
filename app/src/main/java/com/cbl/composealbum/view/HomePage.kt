@@ -5,16 +5,19 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -35,11 +38,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cbl.base.MediaUtil
-import com.cbl.base.view.LeftAddAlbum
-import com.cbl.base.view.LeftLazyItem
-import com.cbl.base.view.RightLazyItem
+import com.cbl.base.view.*
 import com.cbl.composealbum.ui.theme.app_name
 import com.cbl.composealbum.R
+import com.cbl.composealbum.ui.theme.theme_color
 import timber.log.Timber
 
 /**
@@ -129,24 +131,27 @@ fun HomePage(viewModel: HomeViewModel = viewModel(), docall: () -> Unit) {
                 )
         )
         Text(
-            text = "相册", color = app_name, fontWeight = FontWeight(500), modifier = Modifier
+            text = "相册", color = Color.Black.copy(alpha = 0.9f), fontWeight = FontWeight(500), modifier = Modifier
                 .layoutId("appName")
                 .clickable {
 
                 }, fontSize = 28.sp
         )
         AnimatedVisibility(visible = viewModel.viewStates.showLeftEdit, modifier = Modifier.layoutId("bt_left_edit")) {
-            IconButton(
-               /* modifier = Modifier.layoutId("bt_left_edit"),*/
+        /*    CommonTxt(
+                "编辑",
                 onClick = {
                     viewModel.dispatch(HomeViewAction.LeftEdit)
-                }) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_h_edit2),
-                    contentDescription = "",
-                    modifier = Modifier.size(50.dp)
+
+                })*/
+            CommonBox(content = {
+                Text(
+                    text = "编辑",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight(500),
+                    color = theme_color,
                 )
-            }
+            }, onClick = {viewModel.dispatch(HomeViewAction.LeftEdit)})
         }
         Box(
             modifier = Modifier
