@@ -86,7 +86,7 @@ fun LeftLazyItem(
             .fillMaxWidth()
             .aspectRatio(432f / 116f)
             .background(brush = if (hasbg) brush else brush2)
-            .padding(start = 20.dp, end = 20.dp)
+            .padding(start = 20.dp, end = if(leftEdit) 8.dp else 20.dp)
             .clickable {
                 onClick.invoke()
             }) {
@@ -95,14 +95,17 @@ fun LeftLazyItem(
             modifier = Modifier.weight(1f),
             color = if(hasbg) fontColor else fontColor.copy(alpha = 0.7f),
             fontSize = 21.sp,
-            fontWeight = FontWeight(500)
+            fontWeight = FontWeight(500),
+            overflow=TextOverflow.Ellipsis,
+            maxLines = 1,
         )
         Text(
             text = "${albumBean.list.size}",
             color = if(hasbg) fontColor.copy(alpha = 0.9f) else fontColor.copy(alpha = 0.5f),
             fontWeight = FontWeight(400),
             fontSize = 21.sp,
-            modifier = Modifier
+            modifier = Modifier,
+            maxLines = 1,
         )
         AnimatedVisibility(visible = leftEdit, modifier = Modifier) {
             Checkbox(
