@@ -175,8 +175,8 @@ fun RightLazyItem(mediaBean: MediaBean?, onClick: () -> Unit) {
 }
 @Composable
 fun LeftAddAlbum( onClick: () -> Unit={}) {
-    Box(modifier = Modifier.fillMaxSize()){
-        Button(
+/*    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+       *//* Button(
             onClick = { onClick.invoke() },
             modifier = Modifier
                 .align(Alignment.Center)
@@ -188,7 +188,84 @@ fun LeftAddAlbum( onClick: () -> Unit={}) {
             Text(text = "新建相册",color = theme_color,
             fontSize = 21.sp,
             fontWeight = FontWeight(500))
+        }*//*
+    }*/
+    CommonBox(modifier = Modifier.fillMaxSize(), onClick = { onClick }) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_h_add),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth(35f / 328)
+                    .aspectRatio(1f)
+            )
+            Text(text = "新建相册",color = theme_color,
+                fontSize = 21.sp,
+                fontWeight = FontWeight(500))
         }
+    }
+}
+@Composable
+fun LeftFun( deleteEnable:Boolean=true,renameEnable:Boolean=true,onCancelClick: () -> Unit={},onRenameClick: () -> Unit={},onDeleteClick: () -> Unit={},onAllSelect: () -> Unit={}) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxSize()) {
+
+        CommonBox(modifier = Modifier.fillMaxHeight(), onClick = onCancelClick) {
+            Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_h_cancel),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxHeight(0.5f)
+                        .aspectRatio(1f)
+                )
+                Text(text = "取消",color = theme_color,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight(500))
+            }
+        }
+        CommonBox(enable = renameEnable, modifier = Modifier.fillMaxHeight(), onClick = {}) {
+            Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_h_rename),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxHeight(0.5f)
+                        .aspectRatio(1f)
+                )
+                Text(text = "重命名",color = theme_color,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight(500))
+            }
+        }
+        CommonBox(enable = deleteEnable,modifier = Modifier.fillMaxHeight(), onClick = {}) {
+            Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_h_delete),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxHeight(0.5f)
+                        .aspectRatio(1f)
+                )
+                Text(text = "删除",color = theme_color,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight(500))
+            }
+        }
+        CommonBox(modifier = Modifier.fillMaxHeight(), onClick = {}) {
+            Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_h_all_select),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxHeight(0.5f)
+                        .aspectRatio(1f)
+                )
+                Text(text = "全选",color = theme_color,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight(500))
+            }
+        }
+
     }
 }
 
@@ -216,21 +293,28 @@ fun CommonTxt(txt:String,onClick: () -> Unit){
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = onClick)
+                onClick = onClick
+            )
     )
 }
 @Composable
-fun CommonBox( content: @Composable () -> Unit,onClick: () -> Unit){
+fun CommonBox( enable: Boolean=true,modifier: Modifier = Modifier,onClick: () -> Unit,content: @Composable () -> Unit){
     val interactionSource = remember { MutableInteractionSource() }
     val isPressedAsState = interactionSource.collectIsPressedAsState()
+    val click: () -> Unit={}
     Box(
-        modifier = Modifier
-            .scale(if (isPressedAsState.value) 0.9f else 1f)
-            .alpha(if (isPressedAsState.value) 0.8f else 1f)
+        modifier = modifier
+            .scale(if (isPressedAsState.value&&enable) 0.9f else 1f)
+            .alpha(when{
+                !enable->0.4f
+                isPressedAsState.value->0.8f
+                else->1f
+            })
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = onClick)
+                onClick = if(enable) onClick else click
+            )
     ){
         content()
     }

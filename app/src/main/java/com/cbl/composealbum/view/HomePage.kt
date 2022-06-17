@@ -65,7 +65,7 @@ fun HomePage(viewModel: HomeViewModel = viewModel(), docall: () -> Unit) {
         val bt_right_edit = createRefFor("bt_right_edit")
         val rightgrid = createRefFor("rightgrid")
         constrain(leftBox) {
-            width = Dimension.percent(0.29f)
+            width = Dimension.percent(328f/1280)
             height = Dimension.fillToConstraints
             start.linkTo(parent.start)
             top.linkTo(parent.top)
@@ -90,7 +90,7 @@ fun HomePage(viewModel: HomeViewModel = viewModel(), docall: () -> Unit) {
         }
         constrain(left_box_bottom_fun) {
             width = Dimension.fillToConstraints
-            height = Dimension.ratio("288:127")
+            height = Dimension.ratio("328:93")
             start.linkTo(leftBox.start)
             end.linkTo(leftBox.end)
             bottom.linkTo(leftBox.bottom)
@@ -170,7 +170,15 @@ fun HomePage(viewModel: HomeViewModel = viewModel(), docall: () -> Unit) {
                         alpha = 0.1f,
                     )
             )
-            LeftAddAlbum()
+            if(viewModel.viewStates.showLeftEdit){
+                LeftAddAlbum()
+            }else{
+                LeftFun(
+                    deleteEnable = viewModel.viewStates.leftEditSelectList.isNotEmpty(),
+                    renameEnable = viewModel.viewStates.leftEditSelectList.size == 1,
+                    onCancelClick = {viewModel.dispatch(HomeViewAction.LeftEdit)}
+                )
+            }
         }
 
         LazyColumn(
