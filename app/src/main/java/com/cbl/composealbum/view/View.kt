@@ -86,7 +86,7 @@ fun LeftLazyItem(
             .fillMaxWidth()
             .aspectRatio(432f / 116f)
             .background(brush = if (hasbg) brush else brush2)
-            .padding(start = 20.dp, end = if(leftEdit) 8.dp else 20.dp)
+            .padding(start = 20.dp, end = if (leftEdit) 8.dp else 20.dp)
             .clickable {
                 onClick.invoke()
             }) {
@@ -118,7 +118,7 @@ fun LeftLazyItem(
 }
 
 @Composable
-fun RightLazyItem(mediaBean: MediaBean?, onClick: () -> Unit) {
+fun RightLazyItem(showCheck:Boolean=false,isSelect:Boolean=false,mediaBean: MediaBean?, onClick: () -> Unit) {
     /* val imageLoader = ImageLoader.Builder(LocalContext.current)
          .components {
              if (SDK_INT >= 28) {
@@ -147,24 +147,38 @@ fun RightLazyItem(mediaBean: MediaBean?, onClick: () -> Unit) {
         contentDescription = null
     )*/
     if (mediaBean != null) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(mediaBean.path)
-                .videoFrameMillis(0L)
-                .crossfade(true)
-                .apply {
-                    if (mediaBean.mimeType?.contains("video") == true) {
-                        decoderFactory(VideoFrameDecoder.Factory())
-                    } else if (mediaBean.mimeType?.contains("gif") == true) {
-                        decoderFactory(GifDecoder.Factory())
+        Box(modifier = Modifier.clickable {
+            onClick.invoke()
+        }){
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(mediaBean.path)
+                    .videoFrameMillis(0L)
+                    .crossfade(true)
+                    .apply {
+                        if (mediaBean.mimeType?.contains("video") == true) {
+                            decoderFactory(VideoFrameDecoder.Factory())
+                        } else if (mediaBean.mimeType?.contains("gif") == true) {
+                            decoderFactory(GifDecoder.Factory())
+                        }
                     }
-                }
-                .build(),
+                    .build(),
 //        placeholder = painterResource(R.drawable.placeholder),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.aspectRatio(1f),
-        )
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.aspectRatio(1f),
+            )
+            if(showCheck){
+                Checkbox(
+                    checked = isSelect,
+                    onCheckedChange = { onClick.invoke() },
+                    modifier = Modifier.align(
+                        Alignment.TopEnd
+                    )
+                )
+            }
+        }
+
     } else {
         Box(
             modifier = Modifier
@@ -275,7 +289,7 @@ fun LeftFun( deleteEnable:Boolean=true,renameEnable:Boolean=true,onCancelClick: 
 @Composable
 fun CommonAlbum(albumBean: AlbumBean) {
     Column() {
-        RightLazyItem(mediaBean = albumBean.list.firstOrNull(), {})
+        RightLazyItem(mediaBean = albumBean.list.firstOrNull(), onClick = {})
         Text(text = albumBean.getShowName())
         Text(text = "${albumBean.list.size}")
     }
@@ -307,16 +321,18 @@ fun CommonBox( enable: Boolean=true,modifier: Modifier = Modifier,onClick: () ->
     val click: () -> Unit={}
     Box(
         modifier = modifier
-            .scale(if (isPressedAsState.value&&enable) 0.9f else 1f)
-            .alpha(when{
-                !enable->0.4f
-                isPressedAsState.value->0.8f
-                else->1f
-            })
+            .scale(if (isPressedAsState.value && enable) 0.9f else 1f)
+            .alpha(
+                when {
+                    !enable -> 0.4f
+                    isPressedAsState.value -> 0.8f
+                    else -> 1f
+                }
+            )
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = if(enable) onClick else click
+                onClick = if (enable) onClick else click
             )
     ){
         content()

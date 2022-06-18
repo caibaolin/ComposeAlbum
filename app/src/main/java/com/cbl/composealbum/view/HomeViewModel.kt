@@ -77,7 +77,14 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
-
+    private fun rightOnClick(bean: MediaBean) {
+        Timber.i("leftOnClick albumBean")
+        if(!viewStates.showRightEdit){
+            leftRightSelect(bean)
+        }else{
+           //todo click item
+        }
+    }
     private fun changeSort() {
         Timber.i("changeSort")
         val albumBeanList: MutableList<AlbumBean> = mutableListOf()
@@ -107,7 +114,10 @@ class HomeViewModel : ViewModel() {
         val temp=!viewStates.showLeftEdit
         viewStates = viewStates.copy(showLeftEdit = temp)
     }
-
+    private fun rightEdit() {
+        val temp=!viewStates.showRightEdit
+        viewStates = viewStates.copy(showRightEdit = temp)
+    }
     private fun addAlbum(targetName:String) {
 
     }
@@ -130,6 +140,8 @@ class HomeViewModel : ViewModel() {
             is HomeViewAction.ReNameAlbumAction -> reNameAlbum(action.bean,action.targetName)
             is HomeViewAction.AddAlbumAction -> addAlbum(action.targetName)
             is HomeViewAction.DeleteAlbumAction -> deleteAlbum(action.list)
+            is HomeViewAction.RightEdit -> rightEdit()
+            is HomeViewAction.RightOnClick -> rightOnClick(action.bean)
         }
     }
     private fun leftEditSelect( bean: AlbumBean){
@@ -142,14 +154,25 @@ class HomeViewModel : ViewModel() {
         }
         viewStates=viewStates.copy(leftEditSelectList = temp)
     }
-
+    private fun leftRightSelect( bean: MediaBean){
+        val temp: MutableList<MediaBean> = mutableListOf<MediaBean>()
+        temp.addAll(viewStates.rightSelectList)
+        if(temp.contains(bean)){
+            temp.remove(bean)
+        }else{
+            temp.add(bean)
+        }
+        viewStates=viewStates.copy(rightSelectList = temp)
+    }
 }
 
 data class HomeViewState(
     val albumList: List<AlbumBean> = emptyList<AlbumBean>(),
     val clickAlbumBean: AlbumBean = AlbumBean(),
     val showLeftEdit: Boolean = true,
+    val showRightEdit: Boolean = true,
     val leftEditSelectList: List<AlbumBean> = emptyList<AlbumBean>(),
+    val rightSelectList: List<MediaBean> = emptyList<MediaBean>(),
 )
 
 sealed class HomeViewAction {
@@ -160,4 +183,6 @@ sealed class HomeViewAction {
     data class ReNameAlbumAction(val bean: AlbumBean, val targetName:String) : HomeViewAction()
     data class AddAlbumAction(val targetName:String) : HomeViewAction()
     data class DeleteAlbumAction(val list: MutableList<AlbumBean>) : HomeViewAction()
+    object RightEdit : HomeViewAction()
+    data class RightOnClick(val bean: MediaBean) : HomeViewAction()
 }

@@ -211,7 +211,7 @@ fun HomePage(viewModel: HomeViewModel = viewModel(), docall: () -> Unit) {
         }
         IconButton(
             modifier = Modifier.layoutId("bt_right_edit"),
-            onClick = { viewModel.dispatch(HomeViewAction.ChangeSort) }) {
+            onClick = { viewModel.dispatch(HomeViewAction.RightEdit) }) {
             Image(
                 painter = painterResource(id = R.drawable.ic_h_edit2),
                 contentDescription = "",
@@ -227,7 +227,11 @@ fun HomePage(viewModel: HomeViewModel = viewModel(), docall: () -> Unit) {
             Timber.i("LazyVerticalGrid compose")
             viewModel.viewStates.clickAlbumBean.list.forEach {
                 item {
-                    RightLazyItem(it, {})
+                    RightLazyItem( !viewModel.viewStates.showRightEdit,viewModel.viewStates.rightSelectList.contains(it),it) {
+                        viewModel.dispatch(
+                            HomeViewAction.RightOnClick(it)
+                        )
+                    }
                 }
             }
         }
