@@ -79,7 +79,28 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun changeSort() {
+        Timber.i("changeSort")
+        val albumBeanList: MutableList<AlbumBean> = mutableListOf()
+        var clickAlbumBeanTemp=AlbumBean()
+        viewStates.albumList.forEach {albumBean->
+            val mediaBeanList: MutableList<MediaBean> = mutableListOf()
+            mediaBeanList.addAll(albumBean.list)
+            val list=mediaBeanList.sortedByDescending {
+                it._size
+            }
+            val temp=albumBean.copy(list = list.toMutableList())
+            if(viewStates.clickAlbumBean===albumBean){
+                Timber.i("changeSort clickAlbumBean viewStates.clickAlbumBean-->${viewStates.clickAlbumBean}")
+                Timber.i("changeSort clickAlbumBean mediaBeanList-->${mediaBeanList}")
 
+                clickAlbumBeanTemp=temp
+            }
+            albumBeanList.add(temp)
+        }
+        viewStates = viewStates.copy(
+            albumList =albumBeanList,
+            clickAlbumBean = clickAlbumBeanTemp
+        )
     }
 
     private fun leftEdit() {

@@ -37,6 +37,7 @@ object MediaUtil {
         MediaStore.Images.Media.RELATIVE_PATH,
         MediaStore.Images.Media._ID,
         MediaStore.Images.Media.ORIENTATION,
+        MediaStore.Images.Media.DISPLAY_NAME,
     )
 
     private fun getMediaBeanFromCursor(cursor: Cursor): MediaBean {
@@ -50,6 +51,7 @@ object MediaUtil {
         val relative_path = cursor.getString(7)
         val id = cursor.getLong(8)
         val orientation = cursor.getInt(9)
+        val name = cursor.getString(10)
         return MediaBean(
             _id = id,
             path = path,
@@ -60,7 +62,8 @@ object MediaUtil {
             _size = _size,
 /*            bucket_display_name=bucket_display_name,
             relative_path=relative_path,*/
-            orientation = orientation
+            orientation = orientation,
+            name = name
         ).apply {
             this.date_modified = date_modified
             this.date_added = date_added
